@@ -1,9 +1,10 @@
 ﻿using System;
+using System.IO;
 using System.Threading;
 
-// VGM Player written by
-// !Shawty!/DS in 2017
-// NOTE: This player is designed only to playback BBC Model B VGM Files
+// !Shawty!/DS in 2017 wrote base code
+// changes added by matze79 in 2025 ( support more vgm types,  support vgz etc.)
+
 
 namespace VGMPlayer
 {
@@ -18,8 +19,11 @@ namespace VGMPlayer
       Console.Clear();
       while (displayRunning)
       {
+        Console.ForegroundColor = ConsoleColor.Green;
         Console.SetCursorPosition(0, 0);
-        Console.Write("BBC Micro VGM Player (Serial Port Arduino Version)");
+        Console.Write("VGM Player for Tandy 1000/BBC Serial/USB");
+        Console.ResetColor();
+
 
         Console.SetCursorPosition(0, 2);
         Console.Write("Delay {0}     ", vgmFile.DelayCounter);
@@ -66,9 +70,21 @@ namespace VGMPlayer
 
     static void Main(string[] args)
     {
-      vgmFile.Load(@"C:\BBC Micro Emulation\Embeded Stuff\dreamscape.vgm"); // CHANGE THIS TO THE FILE YOU WANT TO PLAY
+      if (args.Length == 0)
+      {
+       Console.WriteLine("Usage: VGMPlayer <path_to_vgm_file>");
+       return;
+      }
+       string filePath = args[0];
+       if (!File.Exists(filePath))
+       {
+                Console.WriteLine($"File not found: {filePath}");
+                return;
+       }
 
-      timer = new MicroTimer();
+            vgmFile.Load(filePath);
+
+            timer = new MicroTimer();
       timer.MicroTimerElapsed += new MicroTimer.MicroTimerElapsedEventHandler(CallPlayer);
       timer.Interval = 22; // NOTE: This is 22 MICROSECONDS, NOT MILLISECONDS as is usually the case in windows/dotnet
       timer.Enabled = true;
